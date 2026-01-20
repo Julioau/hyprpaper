@@ -1,4 +1,5 @@
 #include "ConfigManager.hpp"
+#include <iostream>
 #include <algorithm>
 #include <filesystem>
 #include <glob.h>
@@ -165,6 +166,9 @@ std::vector<CConfigManager::SSetting> CConfigManager::getSettings() {
             fitMode = std::any_cast<Hyprlang::STRING>(m_config.getSpecialConfigValue("wallpaper", "fit_mode", key.c_str()));
             path    = std::any_cast<Hyprlang::STRING>(m_config.getSpecialConfigValue("wallpaper", "path", key.c_str()));
             timeout = std::any_cast<Hyprlang::INT>(m_config.getSpecialConfigValue("wallpaper", "timeout", key.c_str()));
+            
+            std::cerr << "DEBUG: Parsed wallpaper - Monitor: " << monitor << ", FitMode: " << fitMode << ", Path: " << path << std::endl;
+
         } catch (...) {
             g_logger->log(LOG_ERR, "Failed parsing wallpaper for key {}", key);
             continue;

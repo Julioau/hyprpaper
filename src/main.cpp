@@ -6,9 +6,12 @@
 
 #include <hyprutils/cli/ArgumentParser.hpp>
 
+#include <iostream>
+
 using namespace Hyprutils::CLI;
 
 int main(int argc, const char** argv, const char** envp) {
+    std::cerr << "DEBUG: Main started" << std::endl;
 
     CArgumentParser parser({argv, argc});
 

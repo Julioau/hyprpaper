@@ -11,13 +11,19 @@
 #include <hyprtoolkit/element/Rectangle.hpp>
 
 #include <hyprutils/signal/Listener.hpp>
+#include <hyprutils/math/Vector2D.hpp>
 
 #include "../helpers/Memory.hpp"
+
+struct SViewport {
+    Hyprutils::Math::Vector2D globalSize;
+    Hyprutils::Math::Vector2D offset; // negative
+};
 
 class CWallpaperTarget {
   public:
     CWallpaperTarget(SP<Hyprtoolkit::IBackend> backend, SP<Hyprtoolkit::IOutput> output, const std::vector<std::string>& path,
-                     Hyprtoolkit::eImageFitMode fitMode = Hyprtoolkit::IMAGE_FIT_MODE_COVER, const int timeout = 0);
+                     Hyprtoolkit::eImageFitMode fitMode = Hyprtoolkit::IMAGE_FIT_MODE_COVER, const int timeout = 0, const std::optional<SViewport>& viewport = std::nullopt);
     ~CWallpaperTarget();
 
     CWallpaperTarget(const CWallpaperTarget&) = delete;
@@ -39,6 +45,7 @@ class CWallpaperTarget {
     SP<Hyprtoolkit::CRectangleElement> m_bg;
     SP<Hyprtoolkit::CImageElement>     m_image;
     SP<Hyprtoolkit::CTextElement>      m_splash;
+    std::optional<SViewport>           m_viewport;
 };
 
 class CUI {
@@ -53,6 +60,7 @@ class CUI {
     void                              targetChanged(const SP<Hyprtoolkit::IOutput>& mon);
     void                              targetChanged(const std::string_view& monName);
     void                              registerOutput(const SP<Hyprtoolkit::IOutput>& mon);
+    std::optional<SViewport>          recalculateSpan(const std::string& monName);
 
     SP<Hyprtoolkit::IBackend>         m_backend;
 
