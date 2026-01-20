@@ -49,7 +49,12 @@ std::vector<SMonitorInfo> MonitorLayout::getMonitors() {
         if (!currentMonitor)
             continue;
 
-        if (TRIMMED.contains("x") && TRIMMED.contains("@") && TRIMMED.contains("at")) {
+        if (TRIMMED.starts_with("description:")) {
+            currentMonitor->description = TRIMMED.substr(12);
+            if (currentMonitor->description.starts_with(' '))
+                currentMonitor->description = currentMonitor->description.substr(1);
+        }
+        else if (TRIMMED.contains("x") && TRIMMED.contains("@") && TRIMMED.contains("at")) {
             // Resolution line: "1920x1080@60.00000 at 0x0"
             // We need to parse this carefully.
             try {

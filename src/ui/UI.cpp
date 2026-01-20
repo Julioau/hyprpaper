@@ -161,7 +161,18 @@ void CWallpaperTarget::onRepeatTimer() {
 }
 
 void CUI::registerOutput(const SP<Hyprtoolkit::IOutput>& mon) {
-    g_matcher->registerOutput(mon->port(), pruneDesc(mon->desc()));
+    std::string description = std::string{pruneDesc(mon->desc())};
+
+    const auto MONITORS = MonitorLayout::getMonitors();
+    for (const auto& m : MONITORS) {
+        if (m.name == mon->port()) {
+            if (!m.description.empty())
+                description = m.description;
+            break;
+        }
+    }
+
+    g_matcher->registerOutput(mon->port(), description);
     if (IPC::g_IPCSocket)
         IPC::g_IPCSocket->onNewDisplay(mon->port());
     mon->m_events.removed.listenStatic([this, m = WP<Hyprtoolkit::IOutput>{mon}] {

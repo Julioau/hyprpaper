@@ -4,6 +4,7 @@
 
 struct SMonitorInfo {
     std::string name;
+    std::string description;
     int         id = -1;
     int         x = 0, y = 0;
     int         w = 0, h = 0;
