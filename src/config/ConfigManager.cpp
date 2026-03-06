@@ -64,6 +64,10 @@ bool CConfigManager::init() {
     m_config.addSpecialConfigValue("wallpaper", "path", Hyprlang::STRING{""});
     m_config.addSpecialConfigValue("wallpaper", "fit_mode", Hyprlang::STRING{"cover"});
     m_config.addSpecialConfigValue("wallpaper", "timeout", Hyprlang::INT{0});
+    m_config.addSpecialConfigValue("wallpaper", "region_x", Hyprlang::FLOAT{-99999.0});
+    m_config.addSpecialConfigValue("wallpaper", "region_y", Hyprlang::FLOAT{-99999.0});
+    m_config.addSpecialConfigValue("wallpaper", "region_width", Hyprlang::FLOAT{-99999.0});
+    m_config.addSpecialConfigValue("wallpaper", "region_height", Hyprlang::FLOAT{-99999.0});
 
     m_config.registerHandler(&handleSource, "source", Hyprlang::SHandlerOptions{});
 
@@ -160,13 +164,18 @@ std::vector<CConfigManager::SSetting> CConfigManager::getSettings() {
     for (auto& key : keys) {
         std::string monitor, fitMode, path;
         int         timeout;
+        double      rx, ry, rw, rh;
 
         try {
             monitor = std::any_cast<Hyprlang::STRING>(m_config.getSpecialConfigValue("wallpaper", "monitor", key.c_str()));
             fitMode = std::any_cast<Hyprlang::STRING>(m_config.getSpecialConfigValue("wallpaper", "fit_mode", key.c_str()));
             path    = std::any_cast<Hyprlang::STRING>(m_config.getSpecialConfigValue("wallpaper", "path", key.c_str()));
             timeout = std::any_cast<Hyprlang::INT>(m_config.getSpecialConfigValue("wallpaper", "timeout", key.c_str()));
-            
+            rx      = std::any_cast<Hyprlang::FLOAT>(m_config.getSpecialConfigValue("wallpaper", "region_x", key.c_str()));
+            ry      = std::any_cast<Hyprlang::FLOAT>(m_config.getSpecialConfigValue("wallpaper", "region_y", key.c_str()));
+            rw      = std::any_cast<Hyprlang::FLOAT>(m_config.getSpecialConfigValue("wallpaper", "region_width", key.c_str()));
+            rh      = std::any_cast<Hyprlang::FLOAT>(m_config.getSpecialConfigValue("wallpaper", "region_height", key.c_str()));
+
             std::cerr << "DEBUG: Parsed wallpaper - Monitor: " << monitor << ", FitMode: " << fitMode << ", Path: " << path << std::endl;
 
         } catch (...) {
@@ -186,7 +195,12 @@ std::vector<CConfigManager::SSetting> CConfigManager::getSettings() {
             continue;
         }
 
-        result.emplace_back(SSetting{.monitor = std::move(monitor), .fitMode = std::move(fitMode), .paths = RESOLVE_PATH.value(), .timeout = timeout});
+        auto& s = result.emplace_back(SSetting{.monitor = std::move(monitor), .fitMode = std::move(fitMode), .paths = RESOLVE_PATH.value(), .timeout = timeout});
+        
+        if (rx > -99998.0) s.manualX = rx;
+        if (ry > -99998.0) s.manualY = ry;
+        if (rw > -99998.0) s.manualW = rw;
+        if (rh > -99998.0) s.manualH = rh;
     }
 
     return result;

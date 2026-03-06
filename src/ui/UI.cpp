@@ -267,7 +267,26 @@ std::optional<SViewport> CUI::recalculateSpan(const std::string& monName) {
     std::vector<SMonitorPhysInfo> physMonitors;
     physMonitors.reserve(monitors.size());
     for (auto& m : monitors) {
-        physMonitors.push_back({&m, 0, 0, 0, 0});
+        auto& pm = physMonitors.emplace_back();
+        pm.info = &m;
+
+        // Check for overrides
+        const auto SETTING = g_matcher->getSetting(m.name, pruneDesc(m.description));
+
+        // Physical Size in MaxPPI pixels
+        if (SETTING && SETTING->get().manualW.has_value())
+            pm.physW = *SETTING->get().manualW;
+        else if (m.wMM > 0)
+            pm.physW = m.wMM * maxPPI;
+        else
+            pm.physW = m.w; // Fallback
+
+        if (SETTING && SETTING->get().manualH.has_value())
+            pm.physH = *SETTING->get().manualH;
+        else if (m.hMM > 0)
+            pm.physH = m.hMM * maxPPI;
+        else
+            pm.physH = m.h; // Fallback
     }
 
     // Sort by Logical X then Y
@@ -278,16 +297,13 @@ std::optional<SViewport> CUI::recalculateSpan(const std::string& monName) {
 
     // Calculate Physical Dimensions and Positions
     for (auto& pm : physMonitors) {
-        // Physical Size in MaxPPI pixels
-        if (pm.info->wMM > 0)
-            pm.physW = pm.info->wMM * maxPPI;
-        else
-            pm.physW = pm.info->w; // Fallback
 
-        if (pm.info->hMM > 0)
-            pm.physH = pm.info->hMM * maxPPI;
-        else
-            pm.physH = pm.info->h; // Fallback
+        // Check for manual position override
+        const auto SETTING = g_matcher->getSetting(pm.info->name, pruneDesc(pm.info->description));
+        if (SETTING && SETTING->get().manualX.has_value()) {
+            pm.physX = *SETTING->get().manualX;
+            continue;
+        }
 
         // Determine Position
         // Heuristic: Find a "Left Neighbor"
@@ -337,6 +353,14 @@ std::optional<SViewport> CUI::recalculateSpan(const std::string& monName) {
     });
 
     for (auto& pm : physMonitors) {
+
+         // Check for manual position override
+         const auto SETTING = g_matcher->getSetting(pm.info->name, pruneDesc(pm.info->description));
+         if (SETTING && SETTING->get().manualY.has_value()) {
+             pm.physY = *SETTING->get().manualY;
+             continue;
+         }
+
          bool placedY = false;
          for (const auto& neighbor : physMonitors) {
              if (&neighbor == &pm) continue;
