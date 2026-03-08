@@ -1,6 +1,6 @@
 # hyprpaper
 
-Hyprpaper is a simple and fast wallpaper utility for Hyprland with the ability to dynamically change wallpapers through sockets.
+Hyprpaper is a simple and fast wallpaper utility for Hyprland with the ability to dynamically change wallpapers through sockets. (This fork is implementing span with accurate resizing capability to hyprpaper.
 
 # Features
  - Per-output wallpapers
